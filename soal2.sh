@@ -48,7 +48,7 @@ host Khamul {
 
 systemctl restart isc-dhcp-server
 
-#Durin
+#Node Durin
 apt update && apt install -y isc-dhcp-relay
 echo 'SERVERS="10.90.4.2"' > /etc/default/isc-dhcp-relay
 echo 'INTERFACES="eth1 eth2 eth3 eth4"' >> /etc/default/isc-dhcp-relay
@@ -57,11 +57,11 @@ echo 'OPTIONS=""' >> /etc/default/isc-dhcp-relay
 sysctl -p 
 service isc-dhcp-relay restart|
 
-#Gilgalad
+#Node Gilgalad
 ip a
 
-#Amandil
+#Node Amandil
 ip a
 
-#khamul
+#Node khamul
 ip a

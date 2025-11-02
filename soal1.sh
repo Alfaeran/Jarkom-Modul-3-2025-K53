@@ -1,6 +1,6 @@
 #config nodes
 
-#Durin
+#Node Durin
 auto lo
 iface lo inet loopback
 
@@ -51,7 +51,15 @@ iptables -A FORWARD -i eth4 -o eth0 -j ACCEPT
 iptables -A FORWARD -i eth0 -o eth5 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i eth5 -o eth0 -j ACCEPT
 
-#Elandil
+#Node Elandil
+auto eth0
+iface eth0 inet static
+    address 10.90.1.2
+    netmask 255.255.255.0
+    gateway 10.90.1.1
+    up echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+#Node Isildur
 auto eth0
 iface eth0 inet static
     address 10.90.1.3
@@ -59,15 +67,7 @@ iface eth0 inet static
     gateway 10.90.1.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Isildur
-auto eth0
-iface eth0 inet static
-    address 10.90.1.3
-    netmask 255.255.255.0
-    gateway 10.90.1.1
-    up echo nameserver 192.168.122.1 > /etc/resolv.conf
-
-#Anarion
+#Node Anarion
 auto eth0
 iface eth0 inet static
     address 10.90.1.4
@@ -75,7 +75,7 @@ iface eth0 inet static
     gateway 10.90.1.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Miriel
+#Node Miriel
 auto eth0
 iface eth0 inet static
     address 10.90.1.5
@@ -83,11 +83,11 @@ iface eth0 inet static
     gateway 10.90.1.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Amandil
+#Node Amandil
 auto eth0
 iface eth0 inet dhcp
 
-#Elros
+#Node Elros
 auto eth0
 iface eth0 inet static
     address 10.90.1.6
@@ -95,7 +95,7 @@ iface eth0 inet static
     gateway 10.90.1.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Galadriel
+#Node Galadriel
 auto eth0
 iface eth0 inet static
     address 10.90.2.2
@@ -103,7 +103,7 @@ iface eth0 inet static
     gateway 10.90.2.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Celeborn
+#Node Celeborn
 auto eth0
 iface eth0 inet static
     address 10.90.2.3
@@ -111,7 +111,7 @@ iface eth0 inet static
     gateway 10.90.2.1
     up echo nameserver 192.168.122.1 > /etc/resolv.conf
 
-#Oropher
+#Node Oropher
 auto eth0
 iface eth0 inet static
     address 10.90.2.4

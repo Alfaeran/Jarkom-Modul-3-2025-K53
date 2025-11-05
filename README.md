@@ -1,3 +1,267 @@
+## SOAL 1
+
+### Topologi Jaringan dan Konfigurasi Network
+
+Soal 1 melibatkan konfigurasi jaringan untuk membuat topologi jaringan dengan beberapa subnet. Node Durin bertindak sebagai router utama yang menghubungkan 5 subnet berbeda.
+
+#### Pada Node Durin (Router):
+
+Jalankan konfigurasi network interfaces dengan langkah-langkah berikut:
+
+1. **Edit file `/etc/network/interfaces`** untuk mengatur konfigurasi jaringan statis pada semua interface:
+
+```bash
+nano /etc/network/interfaces
+```
+
+Isi dengan konfigurasi berikut:
+
+```
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+    address 10.90.1.1
+    netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet static
+    address 10.90.2.1
+    netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+    address 10.90.3.1
+    netmask 255.255.255.0
+
+auto eth4
+iface eth4 inet static
+    address 10.90.4.1
+    netmask 255.255.255.0
+
+auto eth5
+iface eth5 inet static
+    address 10.90.5.1
+    netmask 255.255.255.0
+
+post-up sysctl -w net.ipv4.ip_forward=1
+post-up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+post-up echo "nameserver 192.168.122.1" > /etc/resolv.conf
+```
+
+2. **Aktifkan IP Forwarding** untuk routing paket antar subnet:
+
+```bash
+service networking restart
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+sysctl -p
+```
+
+3. **Konfigurasi iptables FORWARD rules** untuk mengizinkan komunikasi antar subnet:
+
+```bash
+iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth2 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth3 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth4 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth4 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth5 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth5 -o eth0 -j ACCEPT
+```
+
+#### Hasil Testing pada Node Durin:
+
+Jalankan perintah berikut untuk memverifikasi konfigurasi:
+
+```bash
+ip address show
+ip route show
+iptables -L FORWARD
+```
+
+Hasil yang diharapkan:
+- Semua interface (eth1-eth5) memiliki IP address sesuai konfigurasi
+- IP forwarding aktif (net.ipv4.ip_forward = 1)
+- FORWARD rules terkonfigurasi dengan benar
+
+**[Bukti: ip_a_durin.png]**
+
+#### Pada Node Lainnya:
+
+Konfigurasi network interface dengan DHCP atau static IP sesuai topologi yang dirancang.
+
+---
+
+## SOAL 2
+
+### Konfigurasi DHCP Server
+
+DHCP (Dynamic Host Configuration Protocol) digunakan untuk mengalokasikan IP address secara dinamis kepada client. Node Aldarion bertindak sebagai DHCP server untuk melayani beberapa subnet dengan berbagai konfigurasi.
+
+#### Pada Node Aldarion (DHCP Server):
+
+1. **Install ISC DHCP Server**:
+
+```bash
+apt update && apt install -y isc-dhcp-server
+```
+
+2. **Konfigurasi interface untuk DHCP Server**:
+
+```bash
+echo 'INTERFACESv4="eth0"' > /etc/default/isc-dhcp-server
+```
+
+3. **Edit file `/etc/dhcp/dhcpd.conf`**:
+
+```bash
+nano /etc/dhcp/dhcpd.conf
+```
+
+Isi dengan konfigurasi berikut:
+
+```
+# Subnet Moria (Networking Khusus)
+subnet 10.90.4.0 netmask 255.255.255.0 {
+  option routers 10.90.4.1;
+  option broadcast-address 10.90.4.255;
+  option domain-name-servers 10.90.3.3;
+}
+
+# Client Dinamis Keluarga Manusia (Subtask 1)
+subnet 10.90.1.0 netmask 255.255.255.0 {
+  range 10.90.1.6 10.90.1.34;
+  range 10.90.1.68 10.90.1.94;
+  option routers 10.90.1.1;
+  option broadcast-address 10.90.1.255;
+  option domain-name-servers 10.90.3.3;
+  default-lease-time 1800;
+  max-lease-time 3600;
+}
+
+# Client Dinamis Keluarga Peri (Subtask 2)
+subnet 10.90.2.0 netmask 255.255.255.0 {
+  range 10.90.2.35 10.90.2.67;
+  range 10.90.2.96 10.90.2.121;
+  option routers 10.90.2.1;
+  option broadcast-address 10.90.2.255;
+  option domain-name-servers 10.90.3.3;
+  default-lease-time 600;
+  max-lease-time 3600;
+}
+
+# Fixed Address (Subnet 3)
+subnet 10.90.3.0 netmask 255.255.255.0 {
+  option routers 10.90.3.1;
+  option broadcast-address 10.90.3.255;
+  option domain-name-servers 10.90.3.3;
+}
+
+# Fixed Address: Khamul yang Misterius
+host Khamul {
+  hardware ethernet 02:42:50:5e:30:00;
+  fixed-address 10.90.3.95;
+}
+```
+
+**Penjelasan Konfigurasi:**
+- **Subnet 10.90.1.0** (Keluarga Manusia): Dua range IP dinamis (1.6-1.34 dan 1.68-1.94) 
+- **Subnet 10.90.2.0** (Keluarga Peri): Dua range IP dinamis (2.35-2.67 dan 2.96-2.121) 
+- **Subnet 10.90.3.0** (Fixed Address): Tidak ada range dinamis, hanya untuk fixed address dan Khamul
+- **Khamul**: Host dengan MAC address 02:42:50:5e:30:00 mendapat IP statis 10.90.3.95
+
+4. **Restart DHCP Server**:
+
+```bash
+systemctl restart isc-dhcp-server
+```
+
+#### Hasil Testing pada Node Aldarion:
+
+Jalankan perintah untuk memverifikasi DHCP server:
+
+```bash
+systemctl status isc-dhcp-server
+netstat -tulpn | grep dhcp
+cat /var/lib/dhcp/dhcpd.leases
+```
+
+**Hasil yang diharapkan:**
+- DHCP server status: active (running)
+- DHCP server listening pada port 67 (UDP)
+- File leases menunjukkan IP yang telah dialokasikan
+
+**[Bukti: dhcp_status_aldarion.png]**
+
+#### Pada Node Client (Elendil, Isildur, Anarion - Keluarga Manusia):
+
+Konfigurasi untuk mendapatkan IP secara dinamis:
+
+```bash
+nano /etc/network/interfaces
+```
+
+Isi dengan:
+
+```
+auto eth0
+iface eth0 inet dhcp
+```
+
+Restart network:
+
+```bash
+systemctl restart networking
+ip address show
+```
+
+**[Bukti: ip_a_elendil.png, ip_a_isildur.png, ip_a_anarion.png]**
+
+#### Pada Node Client (Galadriel, Celeborn, Oropher - Keluarga Peri):
+
+Konfigurasi untuk mendapatkan IP secara dinamis:
+
+```bash
+nano /etc/network/interfaces
+```
+
+Isi dengan:
+
+```
+auto eth0
+iface eth0 inet dhcp
+```
+
+Restart network:
+
+```bash
+systemctl restart networking
+ip address show
+```
+
+**[Bukti: ip_a_galadriel.png, ip_a_celeborn.png, ip_a_oropher.png]**
+
+#### Testing Konektivitas:
+
+Dari salah satu node client, lakukan testing:
+
+```bash
+ping 10.90.1.1  # Ping gateway
+ping 10.90.4.1  # Ping ke subnet lain
+nslookup google.com  # Testing DNS resolution
+```
+
+**[Bukti: ping_result_client.png]**
+
+---
+
 ## SOAL 3
 
 Pada Node Minastir,

@@ -1,6 +1,9 @@
+<img width="1388" height="996" alt="image" src="https://github.com/user-attachments/assets/f6c02755-445c-431b-9424-fdbd1fe64978" />
+
+
 ## SOAL 1
 
-### Topologi Jaringan dan Konfigurasi Network
+### Konfigurasi Network
 
 Soal 1 melibatkan konfigurasi jaringan untuk membuat topologi jaringan dengan beberapa subnet. Node Durin bertindak sebagai router utama yang menghubungkan 5 subnet berbeda.
 
@@ -91,7 +94,10 @@ Hasil yang diharapkan:
 - IP forwarding aktif (net.ipv4.ip_forward = 1)
 - FORWARD rules terkonfigurasi dengan benar
 
-**[Bukti: ip_a_durin.png]**
+
+<img width="1324" height="1031" alt="image" src="https://github.com/user-attachments/assets/719862c0-3595-4770-bfaa-39255db0682a" />
+
+
 
 #### Pada Node Lainnya:
 
@@ -198,33 +204,12 @@ cat /var/lib/dhcp/dhcpd.leases
 - DHCP server listening pada port 67 (UDP)
 - File leases menunjukkan IP yang telah dialokasikan
 
-**[Bukti: dhcp_status_aldarion.png]**
 
-#### Pada Node Client (Elendil, Isildur, Anarion - Keluarga Manusia):
+<img width="583" height="55" alt="image" src="https://github.com/user-attachments/assets/90b4804c-c8c9-4a19-83d2-d4aa678e830c" />
 
-Konfigurasi untuk mendapatkan IP secara dinamis:
 
-```bash
-nano /etc/network/interfaces
-```
 
-Isi dengan:
-
-```
-auto eth0
-iface eth0 inet dhcp
-```
-
-Restart network:
-
-```bash
-systemctl restart networking
-ip address show
-```
-
-**[Bukti: ip_a_elendil.png, ip_a_isildur.png, ip_a_anarion.png]**
-
-#### Pada Node Client (Galadriel, Celeborn, Oropher - Keluarga Peri):
+#### Pada Node Client (Amandil - Keluarga Manusia):
 
 Konfigurasi untuk mendapatkan IP secara dinamis:
 
@@ -246,7 +231,35 @@ systemctl restart networking
 ip address show
 ```
 
-**[Bukti: ip_a_galadriel.png, ip_a_celeborn.png, ip_a_oropher.png]**
+
+<img width="1318" height="85" alt="image" src="https://github.com/user-attachments/assets/d236d531-7c4a-4197-bdc8-cd1c6733cf03" />
+
+
+
+#### Pada Node Client (Giligalad - Keluarga Peri):
+
+Konfigurasi untuk mendapatkan IP secara dinamis:
+
+```bash
+nano /etc/network/interfaces
+```
+
+Isi dengan:
+
+```
+auto eth0
+iface eth0 inet dhcp
+```
+
+Restart network:
+
+```bash
+systemctl restart networking
+ip address show
+```
+
+    <img width="1322" height="90" alt="image" src="https://github.com/user-attachments/assets/a84c52c6-c8a2-45b2-9304-74dde81c72b0" />
+
 
 #### Testing Konektivitas:
 
@@ -258,7 +271,11 @@ ping 10.90.4.1  # Ping ke subnet lain
 nslookup google.com  # Testing DNS resolution
 ```
 
-**[Bukti: ping_result_client.png]**
+<img width="694" height="69" alt="image" src="https://github.com/user-attachments/assets/1dbced39-d7f7-4213-a078-85116a1dfa2e" />
+
+
+<img width="693" height="104" alt="image" src="https://github.com/user-attachments/assets/00e433cc-a9dc-42fa-9755-c766939f23ed" />
+
 
 ---
 
